@@ -36,11 +36,27 @@ int cur = 0;
 //   Serial.println(x, 6);
 // }
 
+// display top 3 notes
+void top3(AudioFFTBase &fft) {
+  AudioFFTResult results[3];
+  fft.resultArray(results);
+  for (int i = 0; i < 3; i++) {
+    AudioFFTResult result = results[i];
+    if (result.magnitude > 1000000) {
+      Serial.print(result.frequency * (441.0/960.0));
+      Serial.print(" ");
+      Serial.print(result.magnitude);  
+      Serial.print("\t");
+    }
+  }
+  Serial.println("");
+}
+
 // display fft result
 void fftResult(AudioFFTBase &fft){
     float diff;
     auto result = fft.result();
-    if (result.magnitude>1000000){
+    if (result.magnitude>5000000){
       // Serial.println(result.magnitude);
       /*Serial.print(result.frequency);
       Serial.print(" ");
@@ -49,14 +65,11 @@ void fftResult(AudioFFTBase &fft){
       Serial.print(result.frequencyAsNote(diff));
       Serial.print( " diff: ");
       Serial.println(diff);*/
-      result.frequencyAsNote(diff);
-      if (abs(diff) < 10) {
-        // Serial.println(12 * log(result.frequency/440)/log(2) + 69);
-        int midi = round(12 * log(result.frequency/440)/log(2) + 69);
-        if (midi != cur) {
-          Serial.println(midi);
-          cur = midi;
-        }
+      float freq = result.frequency * (44100.0/96000.0);
+      int midi = round(12 * log(freq/440)/log(2) + 69);
+      if (midi != cur && midi >= 53 && midi <= 84) {
+        Serial.println(midi);
+        cur = midi;
       }
     } else if (cur != 0) {
       Serial.println(0);
@@ -76,9 +89,9 @@ void setup() {
 
   // Setup FFT output
   auto tcfg = fft.defaultConfig();
-  tcfg.length = 1024;
+  tcfg.length = 4096;
   tcfg.channels = 2;
-  tcfg.sample_rate = 44100;
+  tcfg.sample_rate = 96000;
   tcfg.bits_per_sample = 16;
   tcfg.callback = &fftResult;
   fft.begin(tcfg);
