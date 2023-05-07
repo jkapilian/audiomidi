@@ -1,6 +1,6 @@
 # Audio-MIDI Converter
 ## Background
-Like many low-end keyboards, the Casio SA-46 has a 3.5mm audio out but no MIDI output. A portable MIDI controller of similar size would likely cost multiple times the SA-46's cost. See more of the artistic motivation [here](https://jkapilian.github.io/COMS3930-portfolio/final.html).
+Like many low-end keyboards, the Casio SA-46 has a 3.5mm audio out but no MIDI output. A portable MIDI controller of similar size would likely cost multiple times the SA-46's cost. See more of the artistic motivation [here](https://jkapilian.github.io/COMS3930-portfolio/Final/final.html).
 
 ## Materials
 * Keyboard with 3.5mm audio out (ex: Casio SA-46)
