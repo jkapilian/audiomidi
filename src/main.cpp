@@ -42,8 +42,8 @@ void top3(AudioFFTBase &fft) {
   fft.resultArray(results);
   for (int i = 0; i < 3; i++) {
     AudioFFTResult result = results[i];
-    if (result.magnitude > 1000000) {
-      Serial.print(result.frequency * (441.0/960.0));
+    if (result.magnitude > 3000000) {
+      Serial.print(result.frequency);
       Serial.print(" ");
       Serial.print(result.magnitude);  
       Serial.print("\t");
@@ -56,7 +56,7 @@ void top3(AudioFFTBase &fft) {
 void fftResult(AudioFFTBase &fft){
     float diff;
     auto result = fft.result();
-    if (result.magnitude>5000000){
+    if (result.magnitude> 5000000){
       // Serial.println(result.magnitude);
       /*Serial.print(result.frequency);
       Serial.print(" ");
@@ -65,8 +65,8 @@ void fftResult(AudioFFTBase &fft){
       Serial.print(result.frequencyAsNote(diff));
       Serial.print( " diff: ");
       Serial.println(diff);*/
-      float freq = result.frequency * (44100.0/96000.0);
-      int midi = round(12 * log(freq/440)/log(2) + 69);
+      int midi = round(12 * log(result.frequency/440)/log(2) + 69);
+      Serial.print(midi);
       if (midi != cur && midi >= 53 && midi <= 84) {
         Serial.println(midi);
         cur = midi;
@@ -91,9 +91,9 @@ void setup() {
   auto tcfg = fft.defaultConfig();
   tcfg.length = 4096;
   tcfg.channels = 2;
-  tcfg.sample_rate = 96000;
+  tcfg.sample_rate = 44100;
   tcfg.bits_per_sample = 16;
-  tcfg.callback = &fftResult;
+  tcfg.callback = &top3;
   fft.begin(tcfg);
 }
 
