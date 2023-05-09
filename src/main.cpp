@@ -10,32 +10,6 @@ AudioRealFFT fft;
 StreamCopy copier(fft, kit);
 int cur = 0;
 
-// void printBuffer(int len){
-//   // by default we get int16_t values on 2 channels = 4 bytes per frame
-//   int16_t *value_ptr = (int16_t*) buffer;
-//   for (int j=0;j<len/4;j++){
-//     Serial.print(*value_ptr++);
-//     Serial.print(",");
-//     Serial.println(*value_ptr++);
-//   }
-// }
-
-// void process_data() {
-//   int16_t *value_ptr = (int16_t*) buffer;
-//   for (int j=0;j<BUFFER_SIZE/4;j++){
-//     dub_buf[j] = (double)*value_ptr++;
-//     value_ptr++;
-//   }
-// }
-
-// void run_fft() {
-//   FFT.Windowing(dub_buf, BUFFER_SIZE/4, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-//   FFT.Compute(FFT_FORWARD);
-//   // FFT.ComplexToMagnitude()
-//   double x = FFT.MajorPeak(dub_buf, BUFFER_SIZE/4, 16000);
-//   Serial.println(x, 6);
-// }
-
 // display top 3 notes
 void top3(AudioFFTBase &fft) {
   AudioFFTResult results[3];
@@ -54,19 +28,11 @@ void top3(AudioFFTBase &fft) {
 
 // display fft result
 void fftResult(AudioFFTBase &fft){
-    float diff;
     auto result = fft.result();
     if (result.magnitude> 5000000){
-      // Serial.println(result.magnitude);
-      /*Serial.print(result.frequency);
-      Serial.print(" ");
-      Serial.print(result.magnitude);  
-      Serial.print(" => ");
-      Serial.print(result.frequencyAsNote(diff));
-      Serial.print( " diff: ");
-      Serial.println(diff);*/
-      int midi = round(12 * log(result.frequency/440)/log(2) + 69);
-      Serial.print(midi);
+      // divide frequency by 2 because patch on keyboard that sounds closest to sine wave sounds an octave above
+      int midi = round(12 * log(result.frequency/440/2)/log(2) + 69);
+      // only accept MIDI messages w/in keyboard range to further reduce overtones
       if (midi != cur && midi >= 53 && midi <= 84) {
         Serial.println(midi);
         cur = midi;
@@ -93,7 +59,7 @@ void setup() {
   tcfg.channels = 2;
   tcfg.sample_rate = 44100;
   tcfg.bits_per_sample = 16;
-  tcfg.callback = &top3;
+  tcfg.callback = &fftResult;
   fft.begin(tcfg);
 }
 

@@ -7,13 +7,14 @@ Like many low-end keyboards, the Casio SA-46 has a 3.5mm audio out but no MIDI o
 * 3.5mm audio cable
 * AIThinker AudioKit v2.2
 * USB Cable
-* Foam for audio insulation
 * 1/4 inch basswood (any other enclosure material is welcome)
+* Wood glue
 * Computer with Mainstage or equivalent
 
 ## Technical Outline
 ### Ideal Scenario
 As the AudioKit board has a built in 3.5mm line in, signal could simply be read from the input into one of the many FFT libraries written for Arduino boards. While MIDIUSB seemed to be a good candidate for sending MIDI messages to a computer, it was not compatable with this board in addition to the TTGO T1 board, the other one I had access to. While certain drivers such as [Hairless MIDI](http://projectgus.github.io/hairless-midiserial/#getting_started) are available to allow serial messages to be converted into MIDI signals, a custom Python script could accomplish the same while being more lightweight and flexible for this project's specific needs.
+![High level setup](img/Fig0.png)
 
 ### General Information Flow
 * Audio from the keyboard travel as an analog signal over the 3.5mm to the AudioKit.
@@ -32,13 +33,15 @@ As the AudioKit board has a built in 3.5mm line in, signal could simply be read 
 * Enable the [IAC Driver](https://support.apple.com/guide/audio-midi-setup/transfer-midi-information-between-apps-ams1013/mac) if you have a Mac.
 * Navigate to the directory of the repository in your Terminal and run `python src/main.py`.
 * Open the MIDI software of choice and play notes on the keyboard.
+  - See a demo of the entire device working [here](https://www.youtube.com/watch?v=xnLHb8oRq4o).
 
 ## Enclosure Creation
-* The enclosure shown was laser cut using 1/4 inch basswood. If you are using this thickness of material, this Illustrator file can be used to laser cut a corresponding box. Feel free to experiment with other enclosures!
+* The enclosure shown was laser cut using 1/4 inch basswood. If you are using this thickness of material, this [Illustrator file](enclosure/MIDI_Enclosure.ai) can be used to laser cut a corresponding box. Feel free to experiment with other enclosures!
 
 ## Notes on Parameter Choices
 ### Latency
 As shown in the demo, the latency on this device is still fairly large (up to 100ms). This is because the FFT has to be computed in chunks and divided into bins. Because of the Nyquist frequency, the number of frequency bins must be half of the length in audio samples of the chunk. While experimenting with different values of chunk length, I found that any value lower than 4096 samples was too low to be able to distinguish between lower notes on the keyboard as the lower frequencies would get binned together. However, with a sample rate of 44.1kHz, that leads to a maximum latency due to binning of 92.9ms, in addition to any latency induced by the board's processing. Efforts to improve the latency through an increase of sampling rate were also unsuccessful as the line in appears to only work with the default 44.1kHz, although the board's maximum rate is 48kHz which still would have led to latencies on the same order of magnitude.
 
 ### Detecting Polyphony
-When looking at more than frequency in each time chunk, I found that the combination of sound #66 on the keyboard with a magnitude cutoff of `30000000` was sufficient to eliminate overtones from being detected when a single note was pressed while correctly detecting when multiple notes were played. However, as shown in the image below, when multiple notes are pressed, they intermittently jump below the cutoff. Lowering the magnitude cutoff quickly reintroduced overtones. If these were mapped to MIDI on and off messages, they would cause many false MIDI off messages to be sent, making it sound as if you were jumping between two notes rather than true polyphony. While a grace period could be introduced (i.e. don't send a MIDI off signal until N timesteps without a frequency being above the cutoff), this would create even more latency than the existing setup. As such, the `top3` function is present for the sake of experimentation but should probably be reserved for boards that can sample at a higher rate or for pianos that can output pure sine tones, reducing the need for such a high cutoff.
+When looking at more than frequency in each time chunk, I found that the combination of sound #66 on the keyboard with a magnitude cutoff of `50000000` was sufficient to eliminate overtones from being detected when a single note was pressed while correctly detecting when multiple notes were played. (Note: this sound on the Casio sounds an octave above the note played, and as such, the code divides frequencies by 2 to compensate, feel free to change if different patch sound or different keyboard is used.) However, as shown in the image below, when multiple notes are pressed, they intermittently jump below the cutoff. Lowering the magnitude cutoff quickly reintroduced overtones. If these were mapped to MIDI on and off messages, they would cause many false MIDI off messages to be sent, making it sound as if you were jumping between two notes rather than true polyphony. While a grace period could be introduced (i.e. don't send a MIDI off signal until N timesteps without a frequency being above the cutoff), this would create even more latency than the existing setup. As such, the `top3` function is present for the sake of experimentation but should probably be reserved for boards that can sample at a higher rate or for pianos that can output pure sine tones, reducing the need for such a high cutoff.
+![Polyphony issues in Serial monitor](img/Fig1.png)
