@@ -33,7 +33,8 @@ As the AudioKit board has a built in 3.5mm line in, signal could simply be read 
 * Enable the [IAC Driver](https://support.apple.com/guide/audio-midi-setup/transfer-midi-information-between-apps-ams1013/mac) if you have a Mac.
 * Navigate to the directory of the repository in your Terminal and run `python src/main.py`.
 * Open the MIDI software of choice and play notes on the keyboard.
-  - See a demo of the entire device working [here](https://www.youtube.com/watch?v=xnLHb8oRq4o).
+  - See a demo of the entire device working [here](https://www.youtube.com/watch?v=xnLHb8oRq4o)!
+![Entire setup in action](img/Fig2.png)
 
 ## Enclosure Creation
 * The enclosure shown was laser cut using 1/4 inch basswood. If you are using this thickness of material, this [Illustrator file](enclosure/MIDI_Enclosure.ai) can be used to laser cut a corresponding box. Feel free to experiment with other enclosures!
